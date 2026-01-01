@@ -9,6 +9,10 @@ A modern front and backend bittorrent tracker written in AngularJS and PHP.
 0.3.5
 ## Author
 the swedish torrent king / ERR1R
+
+## Updates
+For a detailed list of updates, improvements, and fixes, see [UPDATES.md](UPDATES.md).
+
 ## Feature highlights
 * Super responsive GUI thanks to the SPA-application nature of AngularJS
 * Advanced admin-features for monitoring site activity, handling reports and multi-deleting torrents.
