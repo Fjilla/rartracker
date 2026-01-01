@@ -58,14 +58,20 @@ var htmlminSettings = {
 
 // Tasks
 
-gulp.task('dist-js', ['lint'], function() {
+gulp.task('lint', function() {
 	return gulp.src(filePaths.JS_FILES)
-		.pipe(babel({ presets: ['es2015'] }))
+		.pipe(jshint())
+		.pipe(jshint.reporter('default'));
+});
+
+gulp.task('dist-js', gulp.series('lint', function() {
+	return gulp.src(filePaths.JS_FILES)
+		.pipe(babel({ presets: ['@babel/preset-env'] }))
 		.pipe(ngAnnotate())
 		.pipe(uglify())
 		.pipe(concat(filePaths.OUTPUT_JS_FILE))
 		.pipe(gulp.dest(filePaths.OUTPUT_DEST));
-});
+}));
 
 gulp.task('dist-html', function() {
 	return gulp.src(filePaths.HTML_FILES)
@@ -93,10 +99,24 @@ gulp.task('css', function() {
 		.pipe(gulp.dest(filePaths.OUTPUT_DEST));
 });
 
-gulp.task('copy-fonts', function() {
+gulp.task('copy-fonts', function(done) {
+	var completed = 0;
+	var total = filePaths.FONT_FOLDERS.length;
+	
+	if (total === 0) {
+		done();
+		return;
+	}
+	
 	filePaths.FONT_FOLDERS.forEach(function (folder) {
-		copydir(folder, './fonts', function(err){
-			if (err){ console.log(err); }
+		copydir(folder, './fonts', function(err) {
+			if (err) {
+				console.error('Error copying fonts from ' + folder + ':', err);
+			}
+			completed++;
+			if (completed === total) {
+				done();
+			}
 		});
 	});
 });
@@ -108,16 +128,13 @@ gulp.task('dev-html', function() {
 		.pipe(gulp.dest(filePaths.OUTPUT_DEST));
 });
 
-gulp.task('lint', function() {
-	return gulp.src(filePaths.JS_FILES)
-		.pipe(jshint())
-		.pipe(jshint.reporter('default'));
-});
+gulp.task('watch', gulp.series(
+	gulp.parallel('dev-js', 'dev-html', 'libs', 'css', 'copy-fonts'),
+	function() {
+		gulp.watch(filePaths.JS_FILES, gulp.series('dev-js'));
+		gulp.watch(filePaths.HTML_FILES, gulp.series('dev-html'));
+		gulp.watch(filePaths.CSS_FILES, gulp.series('css'));
+	}
+));
 
-gulp.task('watch', ['dev-js', 'dev-html', 'libs', 'css', 'copy-fonts'], function() {
-	gulp.watch(filePaths.JS_FILES, ['dev-js']);
-	gulp.watch(filePaths.HTML_FILES, ['dev-html']);
-	gulp.watch(filePaths.CSS_FILES, ['css']);
-});
-
-gulp.task('dist', ['dist-js', 'dist-html', 'libs', 'css', 'copy-fonts']);
+gulp.task('dist', gulp.parallel('dist-js', 'dist-html', 'libs', 'css', 'copy-fonts'));

@@ -243,7 +243,7 @@ class Torrent {
 			$timeString = L::get("TORRENT_HIGHLIGHT_TIME_WEEK");
 		}
 		else { // 2
-			$month = date("Y-m-d H:i:s", time() - 2419200); // 1 månad
+			$month = date("Y-m-d H:i:s", time() - 2419200); // 1 mï¿½nad
 			$wherea[] = 't.added > "' . $month.'"';
 			$timeString = L::get("TORRENT_HIGHLIGHT_TIME_MONTH");
 		}
@@ -838,7 +838,7 @@ class Torrent {
 			throw new Exception(L::get("TORRENT_CONFLICT"), 409);
 		}
 
-		if (stripos($name, '.3d.') > -1 || stripos($name, '.hsbs.') > -1 || stripos($name, '-sbs.') > -1) {
+		if (stripos($name, '.3d.') !== false || stripos($name, '.hsbs.') !== false || stripos($name, '-sbs.') !== false) {
 			$stereoscopic = 1;
 		}
 
@@ -1066,7 +1066,7 @@ class Torrent {
 		$breaked = false;
 		$arr = array();
 		foreach($array as $b) {
-			if (stripos($b[0], 'disc') > - 1) {
+			if (stripos($b[0], 'disc') !== false) {
 				return false;
 			}
 

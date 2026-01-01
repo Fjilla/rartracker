@@ -19,30 +19,47 @@ class LoginAttempts implements IResource {
 		}
 
 		$where = array();
-		$finalWhere = "";
+		$params = array();
+		$paramTypes = array();
 
 		if ($postdata["ip"]) {
-			$where[] = "inlogg.ip LIKE '".$postdata["ip"]."%'";
+			$where[] = "inlogg.ip LIKE ?";
+			$params[] = $postdata["ip"] . "%";
+			$paramTypes[] = PDO::PARAM_STR;
 		}
 
 		if ($postdata["username"]) {
-			$where[] = "inlogg.namn LIKE '".$postdata["username"]."%'";
+			$where[] = "inlogg.namn LIKE ?";
+			$params[] = $postdata["username"] . "%";
+			$paramTypes[] = PDO::PARAM_STR;
 		}
 
+		$finalWhere = "";
 		if (count($where) > 0) {
 			$finalWhere = " WHERE " . implode(" AND ", $where);
 		}
 
-		$sth = $this->db->query("SELECT COUNT(*) FROM inlogg " . $finalWhere);
+		$countQuery = "SELECT COUNT(*) FROM inlogg " . $finalWhere;
+		$sth = $this->db->prepare($countQuery);
+		foreach ($params as $i => $param) {
+			$sth->bindParam($i + 1, $params[$i], $paramTypes[$i]);
+		}
+		$sth->execute();
 		$res = $sth->fetch();
 		$totalCount = $res[0];
 
 		$sth = $this->db->prepare("SELECT inlogg.id, inlogg.namn, inlogg.tid AS added, inlogg.uid, inlogg.ip, inlogg.password, users.warned, users.enabled, users.username FROM inlogg LEFT JOIN users ON inlogg.uid = users.id ".$finalWhere." ORDER BY inlogg.id DESC LIMIT ?, ?");
-		$sth->bindParam(1, $index, PDO::PARAM_INT);
-		$sth->bindParam(2, $limit, PDO::PARAM_INT);
+		$paramIndex = 1;
+		foreach ($params as $i => $param) {
+			$sth->bindParam($paramIndex, $params[$i], $paramTypes[$i]);
+			$paramIndex++;
+		}
+		$sth->bindParam($paramIndex, $index, PDO::PARAM_INT);
+		$paramIndex++;
+		$sth->bindParam($paramIndex, $limit, PDO::PARAM_INT);
 		$sth->execute();
 
-		$result = Array();
+		$result = array();
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$r = array();
@@ -60,7 +77,7 @@ class LoginAttempts implements IResource {
 			array_push($result, $r);
 		}
 
-		return Array($result, $totalCount);
+		return array($result, $totalCount);
 	}
 
 	public function delete($id, $postdata = null) {
@@ -73,9 +90,9 @@ class LoginAttempts implements IResource {
 	}
 
 	public function create($postdata) {
-		$username = $postdata["username"] ?: '';
-		$password = $postdata["password"] ?: '';
-		$uid = $postdata["uid"] ?: 0;
+		$username = $postdata["username"] ?? '';
+		$password = $postdata["password"] ?? '';
+		$uid = $postdata["uid"] ?? 0;
 
 		$ip = $_SERVER["REMOTE_ADDR"];
 		$now = date("Y-m-d H:i:s", time());

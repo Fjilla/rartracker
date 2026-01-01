@@ -19,7 +19,7 @@ $bannade = array(
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?: "";
 
 foreach ($bannade as $k) {
-	if (strpos($userAgent, $k) > -1) {
+	if (strpos($userAgent, $k) !== false) {
 		err("The client you are using is not allowed.");
 	}
 }
@@ -155,7 +155,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			err('Client sent stop, but peer not found!');
 		}
 
-		/* HÄMTA USER INFO - START */
+		/* Hï¿½MTA USER INFO - START */
 		$sth = $db->prepare("SELECT id, username, class, UNIX_TIMESTAMP(leechstart) as leechstart, mbitupp, mbitner, leechbonus FROM users WHERE passkey = ? AND enabled = 'yes'");
 		$sth->bindParam(1, $passkey,	PDO::PARAM_STR);
 		$sth->execute();
@@ -166,10 +166,10 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 
 		list($u_id, $u_name, $u_class, $u_leech, $u_mbitupp, $u_mbitner, $u_leechbonus) = $sth->fetch();
 
-		/* HÄMTA USER INFO - SLUT */
+		/* Hï¿½MTA USER INFO - SLUT */
 
 
-		/* HÄMTA TORRENT INFO - START*/
+		/* Hï¿½MTA TORRENT INFO - START*/
 
 		$sth = $db->prepare("SELECT id, leechers, seeders, frileech, section, size, added FROM torrents WHERE info_hash = ?");
 		$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
@@ -179,12 +179,12 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			err('Torrent does not exist on this tracker.');
 		}
 		list($t_id, $t_leechers, $t_seeders, $t_frileech, $t_section, $t_size, $t_added) = $sth->fetch();
-		/* HÄMTA TORRENT INFO - SLUT */
+		/* Hï¿½MTA TORRENT INFO - SLUT */
 
-		// retunera 0/1 om port öppen
+		// retunera 0/1 om port ï¿½ppen
 		$ansl = connectable($ip, (int)$_GET['port']);
 
-		// Om användaren har fri leech blir Peer bli leech.
+		// Om anvï¿½ndaren har fri leech blir Peer bli leech.
 		$nu = time();
 		$frileech = 0;
 		if ($t_frileech == 1 || $u_leech > $nu) {
@@ -349,7 +349,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			if ($t_fri == 0) {
 				$add_down = ($_GET['downloaded'] - $downloaded) * $setting['download_multiplier'];
 			} else {
-				$add_down = 0; // om torrenten är fri leech
+				$add_down = 0; // om torrenten ï¿½r fri leech
 			}
 
 			if ($u_class == 0) {
@@ -375,7 +375,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			else
 				$dip = $ip;
 
-			/* FRI LEECH PÅSLAGET */
+			/* FRI LEECH Pï¿½SLAGET */
 			//$add_down = 0;
 
 			$sth = $db->prepare("UPDATE LOW_PRIORITY users SET uploaded = uploaded + ?, nytt_seed = nytt_seed + ?, arkiv_seed = arkiv_seed + ?, downloaded = downloaded + ?, downloaded_real = downloaded_real + ?, torrentip =? WHERE id = ?");
@@ -609,7 +609,7 @@ function err($txt, $err = '')
 
 	echo ('d14:failure reason' . strlen($txt) . ':' . $txt . 'e');
 	if ($setting['log_errors']) {
-		debuglog($txt . '; ' . mysql_error() . $err);
+		debuglog($txt . '; ' . $err);
 	}
 	die();
 }

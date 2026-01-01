@@ -8,6 +8,17 @@
 	function AdminRoutes($stateProvider) {
 
 		$stateProvider
+			.state('admin-dashboard', {
+				parent		: 'header',
+				url			: '/admin',
+				views			: {
+					'content@': {
+						templateUrl : '../app/admin/admin-dashboard/admin-dashboard.template.html',
+						controller  : 'AdminDashboardController as vm',
+						resolve		: { user: authService => authService.getPromise() }
+					}
+				}
+			})
 			.state('admin-login-attempts', {
 				parent		: 'header',
 				url			: '/admin-login-attempts?page',

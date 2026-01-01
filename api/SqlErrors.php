@@ -10,7 +10,11 @@ class SqlErrors implements IResource {
 	}
 
 	public function create($text) {
-		$this->db->query("INSERT INTO sqlerror(datum, uid, msg) VALUES(NOW(), " . $this->user->getId() .", " . $this->db->quote($text) .")");
+		$sth = $this->db->prepare("INSERT INTO sqlerror(datum, uid, msg) VALUES(NOW(), ?, ?)");
+		$uid = $this->user->getId();
+		$sth->bindParam(1, $uid, PDO::PARAM_INT);
+		$sth->bindParam(2, $text, PDO::PARAM_STR);
+		$sth->execute();
 	}
 
 	public function query($postdata) {
@@ -31,7 +35,7 @@ class SqlErrors implements IResource {
 
 		$result = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-		return Array($result, $totalCount);
+		return array($result, $totalCount);
 	}
 
 	public function get($id) {}

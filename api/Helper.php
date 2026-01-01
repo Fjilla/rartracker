@@ -43,11 +43,25 @@ class Helper {
 	}
 
 	public static function preCheck($releaseName){
-		$pre = json_decode(file_get_contents('https://predb.ovh/api/v1/?q='.$releaseName), true);
-		foreach ( $pre["rows"] as $dat ) {
-		$pre = $dat["preAt"];
-		return $pre;
+		$url = 'https://predb.ovh/api/v1/?q=' . urlencode($releaseName);
+		$context = stream_context_create([
+			'http' => [
+				'timeout' => 5,
+				'user_agent' => 'rartracker/1.0'
+			]
+		]);
+		$content = @file_get_contents($url, false, $context);
+		if ($content === false) {
+			return null;
 		}
+		$pre = json_decode($content, true);
+		if (isset($pre["rows"]) && is_array($pre["rows"])) {
+			foreach ( $pre["rows"] as $dat ) {
+				$pre = $dat["preAt"];
+				return $pre;
+			}
+		}
+		return null;
 	}
 
 	public static function getDateWithTimezoneOffset() {

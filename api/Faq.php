@@ -11,7 +11,6 @@ class Faq {
 
 	public function query() {
 	 	$sth = $this->db->query('SELECT * FROM faq ORDER BY `order` ASC');
-		$sth->execute();
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 

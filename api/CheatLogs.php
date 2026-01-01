@@ -37,18 +37,33 @@ class CheatLogs {
 		}
 
 		$where = "";
+		$whereParams = array();
 
 		if ($userid > 0) {
-			$where = "WHERE userid = " . $userid;
+			$where = "WHERE userid = ?";
+			$whereParams[] = $userid;
 		}
 
-		$sth = $this->db->query("SELECT COUNT(*) FROM cheatlog $where");
+		$countQuery = "SELECT COUNT(*) FROM cheatlog " . $where;
+		$sth = $this->db->prepare($countQuery);
+		foreach ($whereParams as $i => $param) {
+			$sth->bindParam($i + 1, $whereParams[$i], PDO::PARAM_INT);
+		}
+		$sth->execute();
 		$res = $sth->fetch();
 		$totalCount = $res[0];
 
-		$sth = $this->db->prepare("SELECT cheatlog.*, torrents.name, users.id as uid, users.username, users.warned, users.enabled, users.mbitupp FROM cheatlog LEFT JOIN users ON userid = users.id LEFT JOIN torrents ON cheatlog.torrentid = torrents.id $where ORDER BY $sortColumn $order LIMIT ?, ?");
-		$sth->bindParam(1, $index, PDO::PARAM_INT);
-		$sth->bindParam(2, $limit, PDO::PARAM_INT);
+		// Note: $sortColumn and $order are validated from switch statement, safe to use
+		$query = "SELECT cheatlog.*, torrents.name, users.id as uid, users.username, users.warned, users.enabled, users.mbitupp FROM cheatlog LEFT JOIN users ON userid = users.id LEFT JOIN torrents ON cheatlog.torrentid = torrents.id " . $where . " ORDER BY " . $sortColumn . " " . $order . " LIMIT ?, ?";
+		$sth = $this->db->prepare($query);
+		$paramIndex = 1;
+		foreach ($whereParams as $i => $param) {
+			$sth->bindParam($paramIndex, $whereParams[$i], PDO::PARAM_INT);
+			$paramIndex++;
+		}
+		$sth->bindParam($paramIndex, $index, PDO::PARAM_INT);
+		$paramIndex++;
+		$sth->bindParam($paramIndex, $limit, PDO::PARAM_INT);
 		$sth->execute();
 
 		$result = array();

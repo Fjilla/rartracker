@@ -13,12 +13,12 @@ ignore_user_abort(1);
 ob_start("ob_gzhandler");
 
 /* Will auto include needed class php files */
-function __autoload($class) {
+spl_autoload_register(function ($class) {
 	if ($class === "Memcached") {
 		return;
 	}
 	require_once $class . '.php';
-}
+});
 
 /* Database connection */
 try {
@@ -37,6 +37,7 @@ $postdata = json_decode($http_body, true);
 $params = explode('/', $_GET['url']);
 
 /* Memcache */
+$memcached = null;
 if (class_exists('Memcached')) {
 	try {
 		$memcached = new Memcached;
@@ -587,6 +588,9 @@ try {
 
 			foreach($index as $i) {
 				$customIndex = $user->getCustomIndex($i);
+				if (!$customIndex || !is_array($customIndex)) {
+					continue;
+				}
 				list($headline, $torrents) = $torrent->getHighlightTorrents(
 					$customIndex["tid"],
 					$customIndex["typ"],
@@ -755,7 +759,7 @@ try {
 
 		case validateRoute('GET', 'news'):
 			$news = new News($db, $user);
-			$arr = $news->query((int)$_GET["limit"] ?: 2, $_GET["markAsRead"] ?: "false");
+			$arr = $news->query((int)($_GET["limit"] ?? 2), $_GET["markAsRead"] ?? "false");
 			httpResponse($arr);
 			break;
 

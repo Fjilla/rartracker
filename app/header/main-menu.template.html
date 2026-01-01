@@ -40,6 +40,13 @@
 				</ul>
 			</li>
 		</ul>
-		<div ng-if="vm.currentUser.class >= 8" ng-include="'../app/admin/admin-menu.html'"></div>
+		<ul class="nav navbar-nav navbar-nav-small" ng-if="vm.currentUser.class >= 8">
+			<li class="menuSmall" ui-sref-active="active">
+				<a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-dashboard" ui-sref-opts="{reload: true}">
+					<i class="fa fa-cog fa-fw"></i> <span>Admin Panel</span>
+					<span ng-show="vm.currentUser.newReports > 0 || vm.currentUser.newAdminMessages > 0" class="badge">{{ (vm.currentUser.newReports || 0) + (vm.currentUser.newAdminMessages || 0) }}</span>
+				</a>
+			</li>
+		</ul>
 	</div>
 </nav>

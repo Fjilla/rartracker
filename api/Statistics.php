@@ -60,8 +60,8 @@ class Statistics {
 		$leechers = $leechers[0];
 
 		$peersRecord = $this->db->query("SELECT value_i FROM settings WHERE arg = 'peers_rekord'");
-		$peersRecord = $peersRecord->fetch();
-		$peersRecord = $peersRecord[0];
+		$peersRecordRow = $peersRecord->fetch();
+		$peersRecord = ($peersRecordRow !== false && isset($peersRecordRow[0])) ? $peersRecordRow[0] : 0;
 
 		$peers = $seeders + $leechers;
 

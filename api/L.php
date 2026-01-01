@@ -13,9 +13,15 @@ class L {
 			$language = self::$defaultLanguage;
 		}
 		if (!isset(self::$cache[$language])) {
-			self::$cache[$language] = json_decode(file_get_contents("locales/" . $language . ".json"), true);
+			$localeFile = __DIR__ . "/locales/" . $language . ".json";
+			$localeData = @file_get_contents($localeFile);
+			if ($localeData === false) {
+				self::$cache[$language] = [];
+			} else {
+				self::$cache[$language] = json_decode($localeData, true) ?? [];
+			}
 		}
-		$sentence = self::$cache[$language][$string];
+		$sentence = self::$cache[$language][$string] ?? null;
 		if (!$sentence) {
 			return $string;
 		}

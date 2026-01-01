@@ -42,7 +42,7 @@ class AdminLogs implements IResource {
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
 
-		$result = Array();
+		$result = array();
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$r = array();
@@ -52,7 +52,7 @@ class AdminLogs implements IResource {
 			array_push($result, $r);
 		}
 
-		return Array($result, $totalCount);
+		return array($result, $totalCount);
 	}
 
 	public function get($id) {}

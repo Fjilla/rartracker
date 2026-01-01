@@ -48,7 +48,10 @@
 			if (!this.deferred.promise.$$state.status) {
 				return this.deferred.promise
 					.then(user => {
-						return $translate.use(user.language).then(() => user);
+						if (user && user.language) {
+							return $translate.use(user.language).then(() => user);
+						}
+						return user;
 					});
 			} else {
 				var d = $q.defer();
@@ -101,13 +104,23 @@
 					this.serverResponse(data);
 				}, (response) => {
 					if (response.status === 401) {
+						// Resolve promise with null before logout so routes don't hang
+						if (!this.deferred.promise.$$state.status) {
+							this.deferred.resolve(null);
+						}
 						this.logout();
 					} else {
 						this.scheduleNextStatusCheck();
 					}
 				});
-			} else if ($location.$$path.substring(1,7) !== 'login' && $location.$$path.substring(1,7) !== 'signup' && $location.$$path.substring(1,8) !== 'recover') {
-				this.logout();
+			} else {
+				// Resolve promise with null when no cookies so routes don't hang
+				if (!this.deferred.promise.$$state.status) {
+					this.deferred.resolve(null);
+				}
+				if ($location.$$path.substring(1,7) !== 'login' && $location.$$path.substring(1,7) !== 'signup' && $location.$$path.substring(1,8) !== 'recover') {
+					this.logout();
+				}
 			}
 		};
 

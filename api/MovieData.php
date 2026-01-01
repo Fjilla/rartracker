@@ -44,34 +44,39 @@
 							$res = $this->fetchImdbData("https://www.imdb.com/title/" . $id . "/");
 							
 							if (strlen($res["photo"]) > 10) {
-									@file_put_contents($this->imdbPicturesDir . $res["imdbid"] . '.jpg', @file_get_contents($res["photo"]));
+									$imageContent = @file_get_contents($res["photo"]);
+									if ($imageContent !== false) {
+										@file_put_contents($this->imdbPicturesDir . $res["imdbid"] . '.jpg', $imageContent);
 									
-									// Create new imagick object
- 									$im = new Imagick($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
+										// Create new imagick object
+										$im = new Imagick($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
 
-									$imageprops = $im->getImageGeometry();
-   									if ($imageprops['width'] <= 200 && $imageprops['height'] <= 200) {
-     									 // don't upscale
-  									} else {
-       								$im->resizeImage(500,0, imagick::FILTER_LANCZOS, 1);
-    									}
+										$imageprops = $im->getImageGeometry();
+										if ($imageprops['width'] <= 200 && $imageprops['height'] <= 200) {
+											// don't upscale
+										} else {
+											$im->resizeImage(500,0, imagick::FILTER_LANCZOS, 1);
+										}
 
-									// Optimize the image layers
-									$im->optimizeImageLayers();
-									
-									// Compression and quality
-									//$im->setImageCompression(Imagick::COMPRESSION_JPEG);
-									//$im->setImageCompressionQuality(100);
-									
-									//unlink image
-                                                               unlink($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
+										// Optimize the image layers
+										$im->optimizeImageLayers();
+										
+										// Compression and quality
+										//$im->setImageCompression(Imagick::COMPRESSION_JPEG);
+										//$im->setImageCompressionQuality(100);
+										
+										//unlink image
+										unlink($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
 
-									// Write the image back
-									$im->writeImage($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
-									
-  									$im->destroy();
+										// Write the image back
+										$im->writeImage($this->imdbPicturesDir . $res["imdbid"] . '.jpg');
+										
+										$im->destroy();
 
-									$res["photo"] = 1;
+										$res["photo"] = 1;
+									} else {
+										$res["photo"] = 0;
+									}
 							} else {
 									$res["photo"] = 0;
 							}

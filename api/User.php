@@ -8,6 +8,22 @@ class User {
 	private $class = 8;
 	private $loggedIn = false;
 	private $user;
+	private $db;
+	private $ip;
+	private $email;
+	private $indexList;
+	private $uplLastReadCommentId;
+	private $last_bevakabrowse;
+	private $age;
+	private $bonus;
+	private $requestSlots;
+	private $invites;
+	private $https;
+	private $passkey;
+	private $lastAccess;
+	private $leechStart;
+	private $lastreadnews;
+	private $language;
 
 	// Min 22 chars (for bcrypt salt)
 	const PASSWORD_SALT = "v5NLRfP4cndM3hQuf8fZuN";
@@ -1395,7 +1411,7 @@ class User {
 	}
 
 	private function getCurrentGbSeed() {
-		$sth = $this->db->query("SELECT torrents.size, peers.to_go FROM peers JOIN torrents ON peers.torrent = torrents.id WHERE userid = ".$this->getId()." GROUP BY userid, torrent");
+		$sth = $this->db->query("SELECT torrents.size, peers.to_go FROM peers JOIN torrents ON peers.torrent = torrents.id WHERE userid = ".$this->getId()." GROUP BY userid, torrent, torrents.size, peers.to_go");
 
 		$seeded = 0;
 		while ($row = $sth->fetch()) {

@@ -104,6 +104,11 @@
 					this.currentPage = $stateParams.page;
 					this.hasLoadedFirstTime = true;
 				}
+			}, (error) => {
+				// Handle error - if not logged in, torrents should be empty array
+				this.torrents = [];
+				this.totalItems = 0;
+				this.checkMode = false;
 			});
 		};
 
