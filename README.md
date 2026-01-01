@@ -8,7 +8,7 @@ A modern front and backend bittorrent tracker written in AngularJS and PHP.
 ## Current version
 0.3.5
 ## Author
-the swedish torrent king / ERR1R
+the swedish torrent king / ERR1R / Fjilla
 
 ## Updates
 For a detailed list of updates, improvements, and fixes, see [UPDATES.md](UPDATES.md).
